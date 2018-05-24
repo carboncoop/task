@@ -22,13 +22,23 @@ else {
 }
 
 // Check cron job is running in order to show a warning
-$fp = fopen("Modules/task/lockfile", "w");
-if (!flock($fp, LOCK_EX | LOCK_NB)) {
-    $cron_job_running = true;
+$cron_job_running = false;
+if (!is_writable("Modules/task/lockfile")) {
+    $cron_job_message = "<p><b>Warning!</b></p>
+            <p>Permision denied to open lock file. It was not possible to check if the cron job (that automatically triggers the enabled tasks) is running. You need to contact the administrator.</p>
+         ";
 }
 else {
-    $cron_job_running = false;
-    flock($fp, LOCK_UN);    // release the lock
+    $fp = fopen("Modules/task/lockfile", "w");
+    if (!flock($fp, LOCK_EX | LOCK_NB)) {
+        $cron_job_running = true;
+    }
+    else {
+        $cron_job_message = "<p><b>Warning!</b></p>
+            <p> The cron job that automatically triggers the enabled tasks is not running. You may need to contact the administrator.</p>
+            <p>Until the cron job is started, tasks can only be triggered manually</p>";
+        flock($fp, LOCK_UN);    // release the lock
+    }
 }
 ?>
 
@@ -67,9 +77,7 @@ MAIN
             </ul>
         </div>
         <div id="cron-job-running" class="alert alert-warning hide">
-            <p><b>Warning!</b></p>
-            <p> The cron job that automatically triggers the enabled tasks is not running. You may need to contact the administrator.</p>
-            <p>Until the cron job is started, tasks can only be triggered mannually</p>
+            <?php echo $cron_job_message; ?>
         </div>
         <h3>My tasks</h3>
         <div id="no-user-tasks" class="alert alert-block"><p>You haven't got any tasks</p></div>
