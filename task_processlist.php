@@ -46,29 +46,243 @@ class Task_ProcessList {
         }
     }
 
-    //*****************************************
-    // Module required process configuration, 
-    // $list array index position is not used, 
-    // function name is used instead
+
     public function process_list() {
-// 0=>Name | 1=>Arg type | 2=>function | 3=>No. of datafields if creating feed | 4=>Datatype | 5=>Group | 6=>Engines | 'desc'=>Description | 'requireredis'=>true | 'nochange'=>true  | 'helpurl'=>"http://..."
-        $list[] = array(_("Get feed id"), ProcessArg::FEEDID, "get_feed_id", 0, DataType::UNDEFINED, "Get id", 'desc' => _("<p>Passes the id of the selected feed to the next process </p>"), 'requireredis' => false, 'nochange' => false);
-        $list[] = array(_("Get input id"), ProcessArg::INPUTID, "get_input_id", 0, DataType::UNDEFINED, "Get id", 'desc' => _("<p>Passes the id of the selected input to the next process </p>"), 'requireredis' => false, 'nochange' => false);
-        $list[] = array(_("If feed last update > secs, go to next"), ProcessArg::VALUE, "feed_last_update_greater", 0, DataType::UNDEFINED, "Conditional (id passed as value)", 'desc' => _("<p>The execution of the processlist will carry on if the feed hasn't been updated for the specified amount of seconds. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("If input last update > secs, go to next"), ProcessArg::VALUE, "input_last_update_greater", 0, DataType::UNDEFINED, "Conditional (id passed as value)", 'desc' => _("<p>The execution of the processlist will carry on if the input hasn't been updated for the specified amount of seconds. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid input id (see <i>Get input id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("Send email about a feed"), ProcessArg::TEXT, "send_email_feed", 0, DataType::UNDEFINED, "Notifications (id passed as value)", 'desc' => _("<p>Send an email to the user with the specified body.</p><p>Supported template tags to customize body: {current_time}, {name}, {id}, {last_update}, {value}</p><p>Example body text: At {current_time}, the last update of {name} (feed id: {id}) was on {last_update} and it's value was {value}.</p><p><b>It requires that the value passsed from previous process is a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("Send email about an input"), ProcessArg::TEXT, "send_email_input", 0, DataType::UNDEFINED, "Notifications (id passed as value)", 'desc' => _("<p>Send an email to the user with the specified body.</p><p>Supported template tags to customize body: {id}, {key}, {name}, {node}, {current_time}, {value}, {last_update}</p><p>Example body text: At {current_time} your input from node {node} with key {key} named {name} had value {value} and was last updated {last_update}.</p><p><b>It requires that the value passsed from previous process is a valid input id (see <i>Get input id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("If feed last value >, go to next"), ProcessArg::VALUE, "feed_last_value_greater", 0, DataType::UNDEFINED, "Conditional (id passed as value)", 'desc' => _("<p>The execution of the processlist will carry on if the last value of the feed is greater than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("If feed last value <, go to next"), ProcessArg::VALUE, "feed_last_value_less", 0, DataType::UNDEFINED, "Conditional (id passed as value)", 'desc' => _("<p>The execution of the processlist will carry on if the last value of the feed is less than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("If input last value >, go to next"), ProcessArg::VALUE, "input_last_value_greater", 0, DataType::UNDEFINED, "Conditional (id passed as value)", 'desc' => _("<p>The execution of the processlist will carry on if the last value of the input is greater than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid input id (see <i>Get input id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("If input last value <, go to next"), ProcessArg::VALUE, "input_last_value_less", 0, DataType::UNDEFINED, "Conditional (id passed as value)", 'desc' => _("<p>The execution of the processlist will carry on if the last value of the input is less than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid input id (see <i>Get input id</i>)</b></p>"), 'requireredis' => false, 'nochange' => true);
-        $list[] = array(_("Fix max value"), ProcessArg::VALUE, "fix_max_value", 0, DataType::UNDEFINED, "Feed sanitation (id passed as value)", 'desc' => _("<p>In a feed, search last quarter for datapoints greater than 'max value' and fix them when found</p><p>The value passed to next process will be 'true' if any datapoint has been fixed, false if none</p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => false);
-        $list[] = array(_("Fix min value"), ProcessArg::VALUE, "fix_min_value", 0, DataType::UNDEFINED, "Feed sanitation (id passed as value)", 'desc' => _("<p>In a feed, search last quarter for datapoints lower than 'min value' and fix them when found</p><p>The value passed to next process will be 'true' if any datapoint has been fixed, false if none</p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => false);
-        $list[] = array(_("Interpolate missing datapoints (PHPFINA)"), ProcessArg::NONE, "fix_missing_values", 0, DataType::UNDEFINED, "Feed sanitation (id passed as value)", 'desc' => _("<p>In a feed, search last quarter for missing datapoints. This process can only be applied to PHPFINA feeds (fixed interval).</p><p>The value passed to next process will be 'true' if any datapoint has been fixed, false if none</p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"), 'requireredis' => false, 'nochange' => false);
-        $list[] = array(_("EXIT"), ProcessArg::NONE, "error_found_access_forbidden", 0, DataType::UNDEFINED, "Hidden", 'desc' => "<p>This was automaticaly added because a user's task was trying to acces a feed or input that the user has no access to.</p>", 'internalerror' => true, 'internalerror_reason' => "NO ACCESS TO FEED/INPUT", 'internalerror_desc' => 'Processlist disabled as it uses a feed/input the user has no access to.');
-        $list[] = array(_("EXIT"), ProcessArg::NONE, "error_found_too_many_datapoints", 0, DataType::UNDEFINED, "Hidden", 'desc' => "<p>This was automaticaly added because the dataset to fix was too big .</p>", 'internalerror' => true, 'internalerror_reason' => "TOO MANY DATAPOINTS", 'internalerror_desc' => 'Processlist disabled as it tried to fix a dataset too big.');
-        $list[] = array(_("EXIT"), ProcessArg::NONE, "error_found_opening_file engine", 0, DataType::UNDEFINED, "Hidden", 'desc' => "<p>This was automaticaly added because there were problems opening the feed file .</p>", 'internalerror' => true, 'internalerror_reason' => "CANNOT OPEN FEED FILE", 'internalerror_desc' => 'Processlist disabled as there were problems the data/meta data file.');
-        $list[] = array(_("EXIT"), ProcessArg::NONE, "error_found_wrong_engine", 0, DataType::UNDEFINED, "Hidden", 'desc' => "<p>This was automaticaly added because the feed you are trying to fix is not PHPFINA .</p>", 'internalerror' => true, 'internalerror_reason' => "FEED IS NOT PHPFINA", 'internalerror_desc' => 'Processlist disabled as it tries to fix missing data in a non PHPFINA engine (fixed interval).');
+        $list = array(
+            array(
+                "name" => ("Get feed id"),
+                "short" => "feedid",
+                "argtype" => ProcessArg::FEEDID,
+                "function" => "get_feed_id",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Get id"),
+                "description" => ("<p>Passes the id of the selected feed to the next process </p>"),
+                'requireredis' => false,
+                "nochange" => false,
+            ),
+            array(
+                "name" => ("Get input id"),
+                "short" => "inputid",
+                "argtype" => ProcessArg::INPUTID,
+                "function" => "get_input_id",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Get id"),
+                "description" => ("<p>Passes the id of the selected input to the next process </p>"),
+                'requireredis' => false,
+                "nochange" => false,
+            ),
+            array(
+                "name" => ("If feed last update > secs, go to next"),
+                "short" => "flastupdate > s ->",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "VALUE",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Conditional (id passed as value)"),
+                "description" => ("<p>The execution of the processlist will carry on if the feed hasn't been updated for the specified amount of seconds. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("If input last update > secs, go to next"),
+                "short" => "ilastupdate > s ->",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "input_last_update_greater",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Conditional (id passed as value)"),
+                "description" => ("<p>The execution of the processlist will carry on if the input hasn't been updated for the specified amount of seconds. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid input id (see <i>Get input id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("Send email about a feed"),
+                "short" => "emailfeed",
+                "argtype" => ProcessArg::TEXT,
+                "function" => "send_email_feed",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "Notifications (id passed as value)",
+                "group" => ("Get id"),
+                "description" => ("<p>Send an email to the user with the specified body.</p><p>Supported template tags to customize body: {current_time}, {name}, {id}, {last_update}, {value}</p><p>Example body text: At {current_time}, the last update of {name} (feed id: {id}) was on {last_update} and it's value was {value}.</p><p><b>It requires that the value passsed from previous process is a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("Send email about an input"),
+                "short" => "emailinput",
+                "argtype" => ProcessArg::TEXT,
+                "function" => "send_email_input",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Notifications (id passed as value)"),
+                "description" => ("<p>Send an email to the user with the specified body.</p><p>Supported template tags to customize body: {id}, {key}, {name}, {node}, {current_time}, {value}, {last_update}</p><p>Example body text: At {current_time} your input from node {node} with key {key} named {name} had value {value} and was last updated {last_update}.</p><p><b>It requires that the value passsed from previous process is a valid input id (see <i>Get input id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("If feed last value >, go to next"),
+                "short" => "flastvalue > x ->",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "feed_last_value_greater",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Conditional (id passed as value)"),
+                "description" => ("<p>The execution of the processlist will carry on if the last value of the feed is greater than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("If feed last value <, go to next"),
+                "short" => "flastvalue < x ->",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Conditional (id passed as value)"),
+                "description" => ("<p>The execution of the processlist will carry on if the last value of the feed is less than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("If input last value >, go to next"),
+                "short" => "ilastvalue > x ->",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "input_last_value_greater",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Conditional (id passed as value)"),
+                "description" => ("<p>The execution of the processlist will carry on if the last value of the input is greater than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid input id (see <i>Get input id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("If input last value <, go to next"),
+                "short" => "ilastvalue < x ->",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "input_last_value_less",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Conditional (id passed as value)"),
+                "description" => ("<p>The execution of the processlist will carry on if the last value of the input is less than the specified. Otherwise it will stop. </p><p><b>The value passsed from previous process must be a valid input id (see <i>Get input id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => true,
+            ),
+            array(
+                "name" => ("Fix max value"),
+                "short" => "fixmaxvalue",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "fix_max_value",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Feed sanitation (id passed as value)"),
+                "description" => ("<p>In a feed, search last quarter for datapoints greater than 'max value' and fix them when found</p><p>The value passed to next process will be 'true' if any datapoint has been fixed, false if none</p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => false,
+            ),
+            array(
+                "name" => ("Fix min value"),
+                "short" => "fixminvalue",
+                "argtype" => ProcessArg::VALUE,
+                "function" => "fix_min_value",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Feed sanitation (id passed as value)"),
+                "description" => ("<p>In a feed, search last quarter for datapoints lower than 'min value' and fix them when found</p><p>The value passed to next process will be 'true' if any datapoint has been fixed, false if none</p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => false,
+            ),
+            array(
+                "name" => ("Interpolate missing datapoints (PHPFINA)"),
+                "short" => "interpolate",
+                "argtype" => ProcessArg::NONE,
+                "function" => "fix_missing_values",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Feed sanitation (id passed as value)"),
+                "description" => ("<p>In a feed, search last quarter for missing datapoints. This process can only be applied to PHPFINA feeds (fixed interval).</p><p>The value passed to next process will be 'true' if any datapoint has been fixed, false if none</p><p><b>The value passsed from previous process must be a valid feed id (see <i>Get feed id</i>)</b></p>"),
+                'requireredis' => false,
+                "nochange" => false,
+            ),
+            array(
+                "name" => ("EXIT"),
+                "short" => "exit",
+                "argtype" => ProcessArg::NONE,
+                "function" => "error_found_access_forbidden",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Hidden"),
+                "description" => ("<p>This was automaticaly added because a user's task was trying to acces a feed or input that the user has no access to.</p>"),
+                'requireredis' => false,
+                "nochange" => true,
+                'internalerror' => true,
+                'internalerror_reason' => "NO ACCESS TO FEED/INPUT",
+                'internalerror_desc' => 'Processlist disabled as it uses a feed/input the user has no access to.'
+            ),
+            array(
+                "name" => ("EXIT"),
+                "short" => "exit",
+                "argtype" => ProcessArg::NONE,
+                "function" => "error_found_too_many_datapoints",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Hidden"),
+                "description" => ("<p>This was automaticaly added because the dataset to fix was too big .</p>"),
+                'requireredis' => false,
+                "nochange" => true,
+                'internalerror' => true,
+                'internalerror_reason' => "DATAPOINTS",
+                'internalerror_desc' => 'Processlist disabled as it tried to fix a dataset too big.'
+            ),
+            array(
+                "name" => ("EXIT"),
+                "short" => "exit",
+                "argtype" => ProcessArg::NONE,
+                "function" => "error_found_opening_file",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Hidden"),
+                "description" => ("<p>This was automaticaly added because there were problems opening the feed file .</p>"),
+                'requireredis' => false,
+                "nochange" => true,
+                'internalerror' => true,
+                'internalerror_reason' => "CANNOT OPEN FEED FILE",
+                'internalerror_desc' => 'Processlist disabled as there were problems the data/meta data file.'
+            ),
+            array(
+                "name" => ("EXIT"),
+                "short" => "exit",
+                "argtype" => ProcessArg::NONE,
+                "function" => "error_found_wrong_engine",
+                "datafields" => 0,
+                "datatype" => DataType::UNDEFINED,
+                "unit" => "",
+                "group" => ("Hidden"),
+                "description" => ("<p>This was automaticaly added because the feed you are trying to fix is not PHPFINA .</p>"),
+                'requireredis' => false,
+                "nochange" => true,
+                'internalerror' => true,
+                'internalerror_reason' => "FEED IS NOT PHPFINA",
+                'internalerror_desc' => 'Processlist disabled as it tries to fix missing data in a non PHPFINA engine (fixed interval).'
+            ),
+        );
         return $list;
     }
 
@@ -390,7 +604,7 @@ class Task_ProcessList {
         // Search user's feeds
         $user_feeds = $this->feed->get_user_feed_ids($userid);
         $result = array_search($feedid, $user_feeds) === false ? false : true;
-        
+
         // If feed doesn't belong to user but group module is installed, we also check if the user has access through a group
         if ($result === false && is_null($this->group) === false) {
             $feed = $this->group->getfeed($userid, '', $feedid, 0, 0, 0, 0, 0, 0);
